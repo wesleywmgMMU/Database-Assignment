@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.contrib.auth.models import User
-from .models import User_detail
+from .models import User_detail, Payment_method
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -48,3 +48,40 @@ class RegisterForm(forms.Form):
         user = User.objects.create_user(username=username, email=email, password=password)
         user_detail = User_detail.objects.create(user=user, ic_number=ic_number)
         return user, user_detail
+  
+class PaymentMethodForm(forms.ModelForm):
+    def clean_card_number(self):
+        card_number = self.cleaned_data['card_number']
+        if not re.match(r'^\d{16}$', card_number):
+            raise forms.ValidationError("Card number must contain exactly 16 digits.")
+        return card_number
+    
+    def clean_expiration_month(self):
+        expiration_month = self.cleaned_data['expiration_month']
+        if not expiration_month.isdigit():
+            raise forms.ValidationError("Expiration month must contain only digits.")
+        return expiration_month
+
+    def clean_expiration_year(self):
+        expiration_year = self.cleaned_data['expiration_year']
+        if not expiration_year.isdigit():
+            raise forms.ValidationError("Expiration year must contain only digits.")
+        return expiration_year
+
+    def clean_security_code(self):
+        security_code = self.cleaned_data['security_code']
+        if not security_code.isdigit():
+            raise forms.ValidationError("Security code must contain only digits.")
+        return security_code
+    
+    def save(self, user=None, commit=True):
+        instance = super().save(commit=False)
+        if user:
+            instance.user = user
+        if commit:
+            instance.save()
+        return instance
+    
+    class Meta:
+        model = Payment_method
+        fields = ['cardholder_name', 'card_number', 'expiration_month', 'expiration_year', 'security_code', 'billing_address']

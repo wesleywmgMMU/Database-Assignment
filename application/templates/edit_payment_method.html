@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Payment Method</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgb(62, 72, 82);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+        }
+        nav h1 {
+            margin-left: 20px;
+            color: white;
+        }
+        .logout-btn {
+            margin-right: 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form_content {
+            text-align: right;
+        }
+        .error-message ul {
+            color: red;
+            list-style: none;
+            padding: 0;
+        }
+        .back-btn,
+        .submit-btn {
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+        }
+        .back-btn {
+            background-color: #f44336;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .back-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>Hello, {{ username }}!</h1>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button class="logout-btn" type="submit">Logout</button>
+        </form>
+    </nav>
+    <div class="content">
+        <h1>Edit Payment Method</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form_content">
+                <label for="id_cardholder_name">Cardholder Name:</label>
+                {{ form.cardholder_name }}
+                <br>
+                <label for="id_card_Number">Card Number:</label>
+                {{ form.card_number }}
+                <br>
+                <label for="id_expiration_month">Expiration Month:</label>
+                {{ form.expiration_month }}
+                <br>
+                <label for="id_expiration_year">Expiration Year:</label>
+                {{ form.expiration_year }}
+                <br>
+                <label for="id_security_code">Security Code:</label>
+                {{ form.security_code }}
+                <br>
+                <label for="id_billing_address">Billing Address:</label>
+                {{ form.billing_address }}
+            </div>
+            <br>
+            <button class="back-btn" type="button" onclick="history.back()">Back</button>
+            <button class="submit-btn" type="submit">Update</button>
+        </form>
+
+        {% if form.errors %}
+        <div class="error-message">
+            <ul>
+                {% for field_errors in form.errors.values %}
+                    {% for error in field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -55,6 +55,107 @@
             justify-content: center;
             align-items: center;
         }
+        .content h1 {
+            text-wrap: nowrap;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+        .card-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            row-gap: 20px;;
+        }
+        .card {
+            position: relative;
+            width: 300px;
+            height: 150px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        .card-inner {
+            position: absolute;
+            width: 300px;
+            height: 150px;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 300px;
+            height: 150px;
+            backface-visibility: hidden;
+            background-color: whitesmoke;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+        .card-back {
+            transform: rotateY(-180deg);
+            padding-top: 40px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .add-btn,
+        .view-btn,
+        .remove-btn {
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .add-btn, .view-btn {
+            background-color: #4CAF50;
+        }
+        .remove-btn {
+            background-color: #f44336;
+        }
+        .add-btn:hover, .view-btn:hover {
+            background-color: #45a049;
+        }
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+        .profile-pic {
+            width: 100px; /* Adjust the width as needed */
+            height: 100px; /* Adjust the height as needed */
+            border-radius: 50%; /* Makes the image round */
+        }
+        .card-front p {
+            padding: 0;
+            margin: 0;
+            margin-top: 5px;
+        }
     </style>
 </head>
 
@@ -67,7 +168,45 @@
         </form>
     </nav>
     <div class="content">
-       
+        <div class="card-container">
+            <h1>
+                {% if users %}
+                    All Users
+                {% else %}
+                    There is no user available.
+                {% endif %}
+            </h1>
+            {% for user in users %}
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'profile_pic.svg' %}" alt="{{ user.username }}" class="profile-pic">
+                        <p>{{ user.username }}</p>
+                        <p>{{ user.user_detail.ic_number }}</p>
+                    </div>
+                    <div class="card-back">
+                        {% if user.payment_method_count == 0 %}
+                            <p>This user has 0 payment method.</p>
+                        {% elif user.payment_method_count == 1 %}
+                            <p>This user has 1 payment method.</p>
+                        {% else %}
+                            <p>This user has {{ user.payment_method_count }} payment methods.</p>
+                        {% endif %}
+                        <div class="buttons">
+                            <form action="{% url 'view_payment_methods' user.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="view-btn">View</button>
+                            </form>
+                            <form action="{% url 'remove_user' user.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="remove-btn">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </body>
 

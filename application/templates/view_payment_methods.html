@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 70px;
+            background-color: rgb(62, 72, 82);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+        }
+        nav h1 {
+            margin-left: 20px;
+            color: white;
+        }
+        .logout-btn {
+            margin-right: 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .content {
+            width: 100%;
+            height: calc(100% - 70px);
+            position: fixed;
+            top: 70px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .content h1 {
+            text-wrap: nowrap;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+        .payment-method-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            row-gap: 20px;;
+        }
+        .payment-method {
+            width: 400px; /* Adjust the width as needed */
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+            background-color: whitesmoke;
+        }
+        .payment-method p {
+            margin: 5px 0;
+        }
+        .back-btn {
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            background-color: #f44336;
+        }
+        .back-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <h1>Hello, {{ username }}!</h1>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button class="logout-btn" type="submit">Logout</button>
+        </form>
+    </nav>
+    <div class="content">
+        <div class="payment-method-container">
+            {% if user_payment_methods %}
+        <h1>
+            {% if user_payment_methods|length == 1 %}
+                Payment Method for {{ user.username }}
+            {% else %}
+                Payment Methods for {{ user.username }}
+            {% endif %}
+        </h1>
+            {% for payment_method in user_payment_methods %}
+            <div class="payment-method">
+                <p><strong>Cardholder Name:</strong> {{ payment_method.cardholder_name }}</p>
+                <p><strong>Card Number:</strong> {{ payment_method.card_number }}</p>
+                <p><strong>Expiration Date:</strong> {{ payment_method.expiration_month }}/{{ payment_method.expiration_year }}</p>
+                <p><strong>Security Code:</strong> {{ payment_method.security_code }}</p>
+                <p><strong>Billing Address:</strong> {{ payment_method.billing_address }}</p>
+            </div>
+            {% endfor %}
+            <button class="back-btn" type="button" onclick="history.back()">Back</button>
+        </div>
+    {% else %}
+        <h1>There is no payment method for {{ user.username }}.</h1>
+        <button class="back-btn" type="button" onclick="history.back()">Back</button>
+    {% endif %}
+    </div>
+</body>
+
+</html>

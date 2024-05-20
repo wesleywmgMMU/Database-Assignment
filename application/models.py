@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-# Create your models here.
+#  Create your models here.
 class User_detail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ic_number = models.CharField(max_length=12, unique=True)

@@ -54,6 +54,109 @@
             justify-content: center;
             align-items: center;
         }
+        .content h1 {
+            text-wrap: nowrap;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+        .card-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            row-gap: 20px;;
+        }
+        .card {
+            position: relative;
+            width: 300px;
+            height: 150px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        .card-inner {
+            position: absolute;
+            width: 300px;
+            height: 150px;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 300px;
+            height: 150px;
+            backface-visibility: hidden;
+            background-color: whitesmoke;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+        .card-back {
+            transform: rotateY(-180deg);
+            padding-top: 40px;
+        }
+        .card-number {
+            font-size: 18px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .expiration {
+            margin-top: auto;
+        }
+        .billing-address {
+            font-size: x-small;
+            text-wrap: nowrap;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .add-btn,
+        .edit-btn,
+        .remove-btn {
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .add-btn, .edit-btn {
+            background-color: #4CAF50;
+        }
+        .remove-btn {
+            background-color: #f44336;
+        }
+        .add-btn:hover, .edit-btn:hover {
+            background-color: #45a049;
+        }
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
     </style>
 </head>
 
@@ -67,6 +170,52 @@
     </nav>
     <div class="content">
         
+        <div class="card-container">
+            <h1>
+            {% if payment_methods|length == 1 %}
+                Saved Payment Method
+            {% else %}
+                Saved Payment Methods
+            {% endif %}
+            </h1>
+            {% for payment_method in payment_methods %}
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <p>{{ payment_method.cardholder_name }}</p>
+                        <p class="card-number">{{ payment_method.card_number|slice:"0:4" }} {{payment_method.card_number|slice:"4:8" }} {{ payment_method.card_number|slice:"8:12" }} {{payment_method.card_number|slice:"12:16" }}</p>
+                        <div class="expiration">
+                            <p>Exp: {{ payment_method.expiration_month }} / {{ payment_method.expiration_year }}</p>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <p>CVV: {{ payment_method.security_code }}</p>
+                        <p class="billing-address">{{ payment_method.billing_address }}</p>
+                        <div class="buttons">
+                            <form action="{% url 'edit_payment_method' payment_method.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="edit-btn">Edit</button>
+                            </form>
+                            <form action="{% url 'remove_payment_method' payment_method.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="remove-btn">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="table-bottom">
+                <button id="add-btn" class="add-btn">Add New Payment Method</button>
+            </div>
+        
+            <script>
+                document.getElementById("add-btn").onclick = function () {
+                    var url = '{% url "add_payment_method" %}';
+                    window.location.href = url;
+                };
+            </script>
+        </div>
     </div>
 </body>
 

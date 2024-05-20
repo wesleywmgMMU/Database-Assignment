@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, render, redirect
 from .forms import LoginForm, RegisterForm, PaymentMethodForm
 from .models import Payment_method
 from django.http import HttpResponse
@@ -99,16 +100,44 @@ def remove_payment_method(request, payment_method_id):
         return redirect('home')  
     else:
         return HttpResponse("Method not allowed", status=405)
-
+    
 @login_required
 def admin_homepage(request):
-    user = request.user
+    current_user = request.user
+    users = User.objects.filter(is_superuser=False, is_staff=False)
+
+    for user in users:
+        user.payment_method_count = Payment_method.objects.filter(user=user).count()
     
     context = {
-        'username': user.username,
+        'username': current_user.username,
+        'users': users,
     }
 
     return render(request, 'admin_homepage.html', context)
+
+@login_required
+def view_payment_methods(request, user_id):
+    current_user = request.user
+    user_payment_methods = Payment_method.objects.using('read_masked_data').filter(user_id=user_id)
+    user = get_object_or_404(User, pk=user_id)
+
+    context = {
+        'username': current_user.username,
+        'user_payment_methods': user_payment_methods,
+        'user': user
+    }
+
+    return render(request, 'view_payment_methods.html', context)
+
+@login_required
+def remove_user(request, user_id):
+    if request.method == 'POST':
+        user = User.objects.get(pk=user_id)
+        user.delete()
+        return redirect('home')  
+    else:
+        return HttpResponse("Method not allowed", status=405)
 
 @login_required
 def home(request):

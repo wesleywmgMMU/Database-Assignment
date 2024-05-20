@@ -48,7 +48,7 @@ class RegisterForm(forms.Form):
         user = User.objects.create_user(username=username, email=email, password=password)
         user_detail = User_detail.objects.create(user=user, ic_number=ic_number)
         return user, user_detail
-  
+    
 class PaymentMethodForm(forms.ModelForm):
     def clean_card_number(self):
         card_number = self.cleaned_data['card_number']
